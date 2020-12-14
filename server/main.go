@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	// debug.SetGCPercent(-1)
+	// Fully disable Garbage Collector
+	debug.SetGCPercent(-1)
 
 	go monitorRuntime()
 
@@ -55,8 +56,8 @@ func monitorRuntime() {
 			)
 
 		case <-gcTicker.C:
-			// runtime.GC()
-			// fmt.Println("Triggered Garbage Collection")
+			runtime.GC()
+			fmt.Println("Triggered Garbage Collection")
 		}
 	}
 
