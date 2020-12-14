@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"runtime"
+	"runtime/debug"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	// Fully disable Garbage Collector
-	debug.SetGCPercent(-1)
+	debug.SetGCPercent(10)
 
 	go monitorRuntime()
 
@@ -26,11 +25,6 @@ func main() {
 		return c.SendString("response")
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "response")
-	})
-
 	app.Listen(":4040")
 }
 
@@ -38,7 +32,11 @@ func monitorRuntime() {
 	var m runtime.MemStats
 
 	reportTicker := time.NewTicker(5 * time.Second)
-	gcTicker := time.NewTicker(20 * time.Second)
+	// gcTicker := time.NewTicker(20 * time.Second)
+
+	var prev uint64
+
+	prev = 0
 
 	for {
 		select {
@@ -47,17 +45,20 @@ func monitorRuntime() {
 
 			fmt.Println(
 				fmt.Sprintf(
-					"memo-sys: %5v \t\t heap-inuse: %5v \t\t heap-objects: %5v\t\tRoutines: %5v",
+					"memo-sys: %5v \t\t heap-inuse: %5v \t\t heap-objects: %5v\t\tGrowth: %5v\t\tRoutines: %5v",
 					(m.Sys),
 					(m.HeapInuse),
 					m.HeapObjects,
+					int64(m.HeapObjects-prev),
 					runtime.NumGoroutine(),
 				),
 			)
 
-		case <-gcTicker.C:
-			runtime.GC()
-			fmt.Println("Triggered Garbage Collection")
+			prev = m.HeapObjects
+
+			// case <-gcTicker.C:
+			// 	runtime.GC()
+			// 	fmt.Println("Triggered Garbage Collection")
 		}
 	}
 

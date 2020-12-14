@@ -1,4 +1,4 @@
-.PHONY: server client
+.PHONY: server client req
 
 export GO111MODULE=on
 export CGO_ENABLED=0
@@ -9,3 +9,6 @@ client:
 
 server:
 	go run server/main.go
+
+req:
+	curl -XGET http://127.0.0.1:4040/
