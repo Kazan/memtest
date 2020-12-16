@@ -11,4 +11,4 @@ server:
 	go run server/main.go
 
 req:
-	curl -XGET http://127.0.0.1:4040/
+	curl -v -0 -XGET http://127.0.0.1:4040/

@@ -22,7 +22,10 @@ func main() {
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("response")
+		return c.JSON(map[string]interface{}{
+			"status": 200,
+			"result": "ok",
+		})
 	})
 
 	app.Listen(":4040")
@@ -43,15 +46,13 @@ func monitorRuntime() {
 		case <-reportTicker.C:
 			runtime.ReadMemStats(&m)
 
-			fmt.Println(
-				fmt.Sprintf(
-					"memo-sys: %5v \t\t heap-inuse: %5v \t\t heap-objects: %5v\t\tGrowth: %5v\t\tRoutines: %5v",
-					(m.Sys),
-					(m.HeapInuse),
-					m.HeapObjects,
-					int64(m.HeapObjects-prev),
-					runtime.NumGoroutine(),
-				),
+			fmt.Printf(
+				"memo-sys: %5v \t\t heap-inuse: %5v \t\t heap-objects: %5v\t\tGrowth: %5v\t\tRoutines: %5v\n",
+				(m.Sys),
+				(m.HeapInuse),
+				m.HeapObjects,
+				int64(m.HeapObjects-prev),
+				runtime.NumGoroutine(),
 			)
 
 			prev = m.HeapObjects
